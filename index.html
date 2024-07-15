@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Google Maps with GeoJSON</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCo5YoPYXRn9ftIT3d4mWTCNP6kTnI1U94"></script>
+    <script>
+      function initMap() {
+        // Create a map centered on a location
+        var map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 11,
+          center: { lat: 16.89, lng: 99.13 }, // Center of the district
+        });
+
+        // Load GeoJSON data for district boundaries
+        map.data.loadGeoJson("gadm41_THA_3.json");
+
+        // Style the map features
+        map.data.setStyle(function (feature) {
+          var tambon = feature.getProperty("NAME_3");
+
+          console.log({ tambon });
+          var color = "green"; // default fill color
+          var color_line = "green"; // default stroke color
+
+          if (tambon === "TalukKlangThung") {
+            color = "yellow";
+            color_line = "yellow";
+          } else if (tambon === "WangHin") {
+            color = "red";
+            color_line = "red";
+          }
+
+          return {
+            fillColor: color,
+            strokeColor: color_line,
+            strokeOpacity: 1,
+            strokeWeight: 2,
+          };
+        });
+        // Create an info window
+        var infoWindow = new google.maps.InfoWindow();
+
+        // Add event listeners to show tooltips
+        map.data.addListener("mouseover", function (event) {
+          var tambon = event.feature.getProperty("NAME_3");
+          infoWindow.setContent(tambon);
+          var anchor = new google.maps.MVCObject();
+          anchor.set("position", event.latLng);
+          infoWindow.open(map, anchor);
+        });
+
+        // Add event listener to close the info window when the mouse moves out
+        map.data.addListener("mouseout", function (event) {
+          infoWindow.close();
+        });
+      }
+    </script>
+  </head>
+  <body onload="initMap()">
+    <div id="map" style="height: 500px; width: 100%"></div>
+  </body>
+</html>
